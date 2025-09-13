@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Class { // Turma/Disciplina
+  id        String    @id @default(cuid())
+  name      String
+  term      String    // ex: "2025/2"
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  students  Student[]
+  activities Activity[]
+}
+
+model Student {
+  id           String   @id @default(cuid())
+  classId      String
+  class        Class    @relation(fields: [classId], references: [id])
+  name         String
+  academicNo   String   // número acadêmico
+  notes        String?  // observações do professor
+  deletedAt    DateTime?
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  grades       StudentActivityGrade[]
+}
+
+enum Bucket {
+  G1
+  G2
+  FINAL // prova final (recuperação)
+}
+
+model Activity { // Define a atividade e seu peso dentro do bucket
+  id        String   @id @default(cuid())
+  classId   String
+  class     Class    @relation(fields: [classId], references: [id])
+
+  title     String
+  bucket    Bucket
+  weight    Float    // quanto vale dentro do bucket (ex: 1, 2, 6). Idealmente soma 10 por bucket.
+  dueAt     DateTime // usado para filtrar "até tal data" no relatório
+  order     Int      // para ordenar no relatório
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  grades    StudentActivityGrade[]
+}
+
+model StudentActivityGrade {
+  id         String   @id @default(cuid())
+  studentId  String
+  activityId String
+
+  student    Student  @relation(fields: [studentId], references: [id])
+  activity   Activity @relation(fields: [activityId], references: [id])
+
+  // nota lançada para aquele aluno NA ESCALA daquele item (0..weight)
+  points     Float?   // null = ainda não lançado
+  gradedAt   DateTime @default(now())
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  audits     GradeAudit[]
+}
+
+model GradeAudit {
+  id         String   @id @default(cuid())
+  gradeId    String
+  grade      StudentActivityGrade @relation(fields: [gradeId], references: [id])
+
+  oldPoints  Float?
+  newPoints  Float?
+  changedAt  DateTime @default(now())
+  changedBy  String   // "admin" por enquanto
+}
