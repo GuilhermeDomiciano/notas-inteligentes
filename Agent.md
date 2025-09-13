@@ -1,4 +1,4 @@
-# Codex – Contexto do Projeto
+# Codex — Contexto do Projeto
 
 Objetivo: manter e evoluir um mini-sistema acadêmico demonstrativo para o seminário "Tecnologias para Geração de Relatórios Inteligentes".  
 Stack: Next.js (App Router, TS), Server Actions, Prisma (SQLite), Tailwind + shadcn/ui, Zod, RHF, Playwright (PDF).
@@ -19,12 +19,12 @@ Stack: Next.js (App Router, TS), Server Actions, Prisma (SQLite), Tailwind + sha
 
 ## Pastas Importantes
 
-- `src/app/(admin)/classes/[id]/tabs/...` – telas de Alunos, Atividades, Lançamentos e Relatório.
-- `src/app/(admin)/classes/[id]/actions.ts` – Server Actions para CRUD e notas.
-- `src/lib/grades.ts` – helpers de cálculo.
-- `src/lib/pdf.ts` + `src/app/api/report/pdf/route.ts` – exportar PDF.
-- `prisma/schema.prisma` – modelo de dados.
-- `prisma/seed.ts` – povoamento com 30 alunos e várias atividades.
+- `src/app/(admin)/classes/[id]/tabs/...` — telas de Alunos, Atividades, Lançamentos e Relatório.
+- `src/app/(admin)/classes/[id]/actions.ts` — Server Actions para CRUD e notas.
+- `src/lib/grades.ts` — helpers de cálculo.
+- `src/lib/pdf.ts` + `src/app/api/report/pdf/route.ts` — exportar PDF.
+- `prisma/schema.prisma` — modelo de dados.
+- `prisma/seed.ts` — povoamento com 30 alunos e várias atividades.
 
 ## Tarefas abertas (prioridades)
 
@@ -60,14 +60,13 @@ Stack: Next.js (App Router, TS), Server Actions, Prisma (SQLite), Tailwind + sha
 - Sempre usar Server Actions nas telas administrativas.
 - Revalidar com `revalidatePath` após mutações.
 - Não expor dados soft-deleted por padrão.
-- Mensagens de commit curtas e descritivas (ex: `feat(grades): add audit trail`).
+- Mensagens de commit curtas e descritivas (ex.: `feat(grades): add audit trail`).
 
 ## Como rodar
 - pnpm install
 - pnpm prisma:migrate
 - pnpm db:seed
 - pnpm dev
-
 
 ## Dicas de UI (shadcn)
 
@@ -129,7 +128,7 @@ Páginas necessárias: /login (se tiver), /alunos, /lancamentos, /relatorio. Fal
 
 Idioma: PT-BR apenas?
 
-7) Stack & arquitetura (Next 14/15 – App Router)
+7) Stack & arquitetura (Next 14/15 — App Router)
 
 Você prefere Prisma para ORM com SQLite?
 
@@ -160,4 +159,4 @@ Exportar CSV da planilha consolidada?
 Tema claro/escuro?
 
 Resposta:
-1. sim, esses sao os objetivos, quanto mais coisa tiver melho 2. esse fluxo ta bom, adicione tbm a recuperação, (observação: o sistema de nota é o seguinte (G1 + G2 *2)/3, essa é a média final(MF) e a recuperação é (MF + Prova final * 2) / 3, conseguiu 6 é aprovado, as notas g1 e g2 e prova final vai de 0 a 10, mas a nota pode ser dividida livrimente, então pode haver 4 trabalhos q valem 1 ponto e a prova valer 6 por exemplo), essa conta se torna dificil do aluino saber quanto ele tem q tirar na G2 pra ser aprovado por exemplo, então adicione no software a opção de poder ver isso também) 3. sim, haverá 4. Campo pode ser só nome e número academico 5. expliquei acima 6. expliquei dnv 7. Sim, é bom gerar esse histórico e o ultimo valor, permitir exportar pra pdf a vizualização das notas dos alunos, evitando coisas inuteis, por exempl caso o professor queira mostrar só as notas q foram lançadas ate metade da G1 ele pode, e ao exportar nao vai aparecer as notas q ainda não foram definidas 8. Não precisa 9. um único 10.Decida vc mesmo, de acordo com tudo que eu te falei 11. sim, soft delete 12. por enquanto manual já basta 13. todas essas, narrativa atuomatica nao faça usando IA, pode ser regra fixa(nao sei o q isso singifica) 14. Só média, nao vai ter frequencia, decida vc qual nota é em risco ou não, use a regra do semaforo, para isso 15. sim, use os componentes do shadcn e tailwind, deixe muito bonito 16. Decida voce mesmo 17. sim 18. pode ser, como afchar melhor 19. server actions 20. nao sei o q é isso, vc q sabe 21. faça o inicial com muitos dados já, nao so isso 22. nao precisa 23. nao precisa 24. rodara local 25. versiona 26. sim 27. sim 28. sim 29. nao Faça também o software já pronto pra ser expandido para ter uma aréa q um aluno pode ver suas notas e informações pertinente sobre ele também, não precisa fazer isso por agora, ms deixe preparado pro futuro ser facil de implementar Me dê todo o processo de criação do software completo, desde o comando pra criar o projeto ate o fim das coisas dele, faça também um arquivo Agent.md para eu usar o codex para continuar por la, explique tudo isso passo a passo bem explicado com contexto completo, sem faltar nada, desde a idealização do seminário como um todo
+1. Sim, esses são os objetivos; quanto mais, melhor. 2. Esse fluxo está bom; adicione também a recuperação (observação: o sistema de nota é o seguinte: (G1 + G2*2)/3 — essa é a média final (MF) — e a recuperação é (MF + Prova Final*2)/3; conseguiu 6, é aprovado. As notas G1, G2 e Prova Final vão de 0 a 10, mas a nota pode ser dividida livremente; então, pode haver 4 trabalhos que valem 1 ponto e a prova valer 6, por exemplo. Essa conta se torna difícil do aluno saber quanto ele tem que tirar na G2 para ser aprovado; então adicione no software a opção de ver isso também). 3. Sim, haverá. 4. Campo pode ser só nome e número acadêmico. 5. Expliquei acima. 6. Expliquei de novo. 7. Sim, é bom gerar esse histórico e o último valor; permitir exportar para PDF a visualização das notas dos alunos, evitando coisas inúteis; por exemplo, caso o professor queira mostrar só as notas que foram lançadas até metade da G1, ele pode, e ao exportar não vão aparecer as notas que ainda não foram definidas. 8. Não precisa. 9. Um único. 10. Decida você mesmo, de acordo com tudo que falei. 11. Sim, soft delete. 12. Por enquanto, manual já basta. 13. Todas essas; narrativa automática não faça usando IA, pode ser regra fixa (não sei o que isso significa). 14. Só média; não vai ter frequência; decida você qual nota é “em risco” ou não; use a regra do semáforo para isso. 15. Sim, use os componentes do shadcn e Tailwind; deixe muito bonito. 16. Decida você mesmo. 17. Sim. 18. Pode ser, como achar melhor. 19. Server Actions. 20. Não sei o que é isso; você que sabe. 21. Faça o inicial com muitos dados já, não só isso. 22. Não precisa. 23. Não precisa. 24. Rodará local. 25. Versiona. 26. Sim. 27. Sim. 28. Sim. 29. Não. Faça também o software já pronto para ser expandido para ter uma área em que um aluno possa ver suas notas e informações pertinentes sobre ele também; não precisa fazer isso por agora, mas deixe preparado para no futuro ser fácil de implementar. Me dê todo o processo de criação do software completo, desde o comando para criar o projeto até o fim, faça também um arquivo Agent.md para eu usar o Codex para continuar por lá; explique tudo passo a passo, bem explicado, com contexto completo, sem faltar nada, desde a idealização do seminário como um todo.
