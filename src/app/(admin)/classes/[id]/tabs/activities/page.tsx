@@ -3,8 +3,9 @@ import { createActivity, deleteActivity } from '../../actions'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 
-export default async function ActivitiesTab({ params }: { params: { id: string } }) {
-  const activities = await prisma.activity.findMany({ where: { classId: params.id }, orderBy: [{ bucket: 'asc' }, { order: 'asc' }] })
+export default async function ActivitiesTab({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const activities = await prisma.activity.findMany({ where: { classId: id }, orderBy: [{ bucket: 'asc' }, { order: 'asc' }] })
 
   async function addAction(formData: FormData) {
     'use server'
@@ -12,13 +13,13 @@ export default async function ActivitiesTab({ params }: { params: { id: string }
     const bucket = String(formData.get('bucket') || 'G1') as 'G1'|'G2'|'FINAL'
     const weight = Number(formData.get('weight') || 0)
     const dueAt = new Date(String(formData.get('dueAt') || new Date().toISOString()))
-    await createActivity(params.id, { title, bucket, weight, dueAt })
+    await createActivity(id, { title, bucket, weight, dueAt })
   }
 
   async function delAction(formData: FormData) {
     'use server'
-    const id = String(formData.get('id') || '')
-    await deleteActivity(params.id, id)
+    const activityId = String(formData.get('id') || '')
+    await deleteActivity(id, activityId)
   }
 
   return (

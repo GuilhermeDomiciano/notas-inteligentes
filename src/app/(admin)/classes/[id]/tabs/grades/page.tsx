@@ -2,11 +2,12 @@ import { prisma } from '@/lib/prisma'
 import { upsertGrade } from '../../actions'
 import { Input } from '@/components/ui/input'
 
-export default async function GradesTab({ params }: { params: { id: string } }) {
+export default async function GradesTab({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const [students, activities, grades] = await Promise.all([
-    prisma.student.findMany({ where: { classId: params.id, deletedAt: null }, orderBy: { name: 'asc' } }),
-    prisma.activity.findMany({ where: { classId: params.id }, orderBy: [{ bucket: 'asc' }, { order: 'asc' }] }),
-    prisma.studentActivityGrade.findMany({ where: { student: { classId: params.id } } }),
+    prisma.student.findMany({ where: { classId: id, deletedAt: null }, orderBy: { name: 'asc' } }),
+    prisma.activity.findMany({ where: { classId: id }, orderBy: [{ bucket: 'asc' }, { order: 'asc' }] }),
+    prisma.studentActivityGrade.findMany({ where: { student: { classId: id } } }),
   ])
 
   const byKey = new Map<string, typeof grades[number]>(
@@ -19,7 +20,7 @@ export default async function GradesTab({ params }: { params: { id: string } }) 
     const activityId = String(formData.get('activityId') || '')
     const raw = formData.get('points')
     const points = raw === '' || raw === null ? null : Number(raw)
-    await upsertGrade(params.id, { studentId, activityId, points })
+    await upsertGrade(id, { studentId, activityId, points })
   }
 
   return (
@@ -40,13 +41,13 @@ export default async function GradesTab({ params }: { params: { id: string } }) 
               {activities.map((a: typeof activities[number]) => {
                 const k = `${s.id}:${a.id}`
                 const g = byKey.get(k)
-                const val = g?.points ?? ''
+                const val: number | '' = g?.points ?? ''
                 return (
                   <td key={k} className="px-2 py-1">
                     <form action={saveAction}>
                       <input type="hidden" name="studentId" value={s.id} />
                       <input type="hidden" name="activityId" value={a.id} />
-                      <Input name="points" defaultValue={val as any} placeholder="-" className="w-20" />
+                      <Input name="points" defaultValue={val} placeholder="-" className="w-20" />
                     </form>
                   </td>
                 )

@@ -42,7 +42,9 @@ export async function createActivity(classId: string, input: { title: string; bu
     order: z.number().int().optional()
   })
   const data = schema.parse(input)
-  const activity = await prisma.activity.create({ data: { classId: cid, ...data } })
+  const last = await prisma.activity.findFirst({ where: { classId: cid, bucket: data.bucket }, orderBy: { order: 'desc' }, select: { order: true } })
+  const nextOrder = data.order ?? ((last?.order ?? 0) + 1)
+  const activity = await prisma.activity.create({ data: { classId: cid, title: data.title, bucket: data.bucket, weight: data.weight, dueAt: data.dueAt, order: nextOrder } })
   revalidatePath(`/classes/${cid}`)
   return activity
 }

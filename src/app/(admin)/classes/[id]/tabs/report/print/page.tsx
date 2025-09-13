@@ -1,13 +1,15 @@
 import { prisma } from '@/lib/prisma'
 import { aggregateBuckets, neededG2ForApproval, neededPFForApproval, semaphoreColor } from '@/lib/grades'
 
-export default async function ReportPrintPage({ params, searchParams }: { params: { id: string }, searchParams?: { bucket?: string, until?: string, hideUndefined?: string, sort?: string } }) {
-  const activities = await prisma.activity.findMany({ where: { classId: params.id }, orderBy: [{ bucket: 'asc' }, { order: 'asc' }] })
-  const students = await prisma.student.findMany({ where: { classId: params.id, deletedAt: null }, orderBy: { name: 'asc' }, include: { grades: true } })
+export default async function ReportPrintPage({ params, searchParams }: { params: Promise<{ id: string }>, searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
+  const { id } = await params
+  const sp = (searchParams ? await searchParams : {}) as Record<string, string | string[] | undefined>
+  const activities = await prisma.activity.findMany({ where: { classId: id }, orderBy: [{ bucket: 'asc' }, { order: 'asc' }] })
+  const students = await prisma.student.findMany({ where: { classId: id, deletedAt: null }, orderBy: { name: 'asc' }, include: { grades: true } })
 
-  const until = searchParams?.until ? new Date(searchParams.until) : undefined
-  const hideUndefined = searchParams?.hideUndefined === '1'
-  const sort = (searchParams?.sort as 'asc'|'desc'|undefined) ?? 'desc'
+  const until = sp.until ? new Date(sp.until as string) : undefined
+  const hideUndefined = sp.hideUndefined === '1'
+  const sort = (sp.sort as 'asc'|'desc'|undefined) ?? 'desc'
 
   const data = students.map(s => {
     const agg = aggregateBuckets(activities, s.grades, { until, hideUndefined })

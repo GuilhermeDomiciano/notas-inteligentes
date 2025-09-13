@@ -3,20 +3,21 @@ import { createStudent, softDeleteStudent } from '../../actions'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 
-export default async function StudentsTab({ params }: { params: { id: string } }) {
-  const students = await prisma.student.findMany({ where: { classId: params.id, deletedAt: null }, orderBy: { createdAt: 'asc' } })
+export default async function StudentsTab({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const students = await prisma.student.findMany({ where: { classId: id, deletedAt: null }, orderBy: { createdAt: 'asc' } })
 
   async function addAction(formData: FormData) {
     'use server'
     const name = String(formData.get('name') || '')
     const academicNo = String(formData.get('academicNo') || '')
-    await createStudent(params.id, { name, academicNo })
+    await createStudent(id, { name, academicNo })
   }
 
   async function delAction(formData: FormData) {
     'use server'
-    const id = String(formData.get('id') || '')
-    await softDeleteStudent(params.id, id)
+    const studentId = String(formData.get('id') || '')
+    await softDeleteStudent(id, studentId)
   }
 
   return (
