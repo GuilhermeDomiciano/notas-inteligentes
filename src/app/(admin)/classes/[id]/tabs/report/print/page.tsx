@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma'
-import { aggregateBuckets, neededG2ForApproval, neededPFForApproval, semaphoreColor } from '@/src/lib/grades'
+import { aggregateBuckets, neededG2ForApproval, neededPFForApproval, semaphoreColor } from '@/lib/grades'
 
 export default async function ReportPrintPage({ params, searchParams }: { params: { id: string }, searchParams?: { bucket?: string, until?: string, hideUndefined?: string, sort?: string } }) {
   const activities = await prisma.activity.findMany({ where: { classId: params.id }, orderBy: [{ bucket: 'asc' }, { order: 'asc' }] })

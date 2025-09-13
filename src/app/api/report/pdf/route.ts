@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { renderPdfFromUrl } from '@/src/lib/pdf'
+import { renderPdfFromUrl } from '@/lib/pdf'
 
 export async function GET(req: NextRequest) {
   const { searchParams, origin } = new URL(req.url)
@@ -20,4 +20,3 @@ export async function GET(req: NextRequest) {
     },
   })
 }
-

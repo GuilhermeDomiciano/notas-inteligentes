@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma'
-import { aggregateBuckets, neededG2ForApproval, neededPFForApproval, semaphoreColor } from '@/src/lib/grades'
+import { aggregateBuckets, neededG2ForApproval, neededPFForApproval, semaphoreColor } from '@/lib/grades'
 
 export default async function ReportTab({ params, searchParams }: { params: { id: string }, searchParams?: { bucket?: string, until?: string, hideUndefined?: string, sort?: string } }) {
   const activities = await prisma.activity.findMany({ where: { classId: params.id }, orderBy: [{ bucket: 'asc' }, { order: 'asc' }] })
@@ -19,8 +19,11 @@ export default async function ReportTab({ params, searchParams }: { params: { id
     return { s, agg, MF, needG2, needPF, color }
   }).sort((a,b)=> sort==='asc' ? a.MF - b.MF : b.MF - a.MF)
 
+  const counts = data.reduce((acc, d) => { acc[d.color as 'red'|'yellow'|'green']++; return acc }, { red: 0, yellow: 0, green: 0 } as Record<'red'|'yellow'|'green', number>)
+  const maxMF = Math.max(10, ...data.map(d=>d.MF))
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <form className="flex gap-4 items-end">
         <div className="flex flex-col">
           <label className="text-sm">Bucket</label>
@@ -32,7 +35,7 @@ export default async function ReportTab({ params, searchParams }: { params: { id
         </div>
         <div className="flex flex-col">
           <label className="text-sm">Até data</label>
-          <input name="until" type="date" defaultValue={searchParams?.until} className="border px-3 py-2 rounded-md" />
+          <input name="until" type="date" defaultValue={searchParams?.until ?? ''} className="border px-3 py-2 rounded-md" />
         </div>
         <div className="flex items-center gap-2">
           <input id="hideUndefined" type="checkbox" name="hideUndefined" value="1" defaultChecked={hideUndefined} />
@@ -48,36 +51,71 @@ export default async function ReportTab({ params, searchParams }: { params: { id
         <button className="px-4 py-2 rounded-md bg-black text-white">Aplicar</button>
       </form>
 
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="text-left">
-            <th className="py-2">Aluno</th>
-            <th>G1</th>
-            <th>G2</th>
-            <th>MF</th>
-            <th>Necessário G2</th>
-            <th>Necessário PF</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map(({ s, agg, MF, needG2, needPF, color }) => (
-            <tr key={s.id} className="border-t">
-              <td className="py-2">{s.name}</td>
-              <td>{agg.G1.toFixed(1)}</td>
-              <td>{agg.G2.toFixed(1)}</td>
-              <td>
-                <span className={
-                  color==='red' ? 'text-red-600' : color==='yellow' ? 'text-yellow-600' : 'text-green-600'
-                }>
-                  {MF.toFixed(1)}
-                </span>
-              </td>
-              <td>{needG2.toFixed(1)}</td>
-              <td>{MF < 6 ? needPF.toFixed(1) : '-'}</td>
+      <div className="rounded-2xl shadow-sm p-4 border">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-left">
+              <th className="py-2">Aluno</th>
+              <th>G1</th>
+              <th>G2</th>
+              <th>MF</th>
+              <th>Necessário G2</th>
+              <th>Necessário PF</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {data.map(({ s, agg, MF, needG2, needPF, color }) => (
+              <tr key={s.id} className="border-t">
+                <td className="py-2">{s.name}</td>
+                <td>{agg.G1.toFixed(1)}</td>
+                <td>{agg.G2.toFixed(1)}</td>
+                <td>
+                  <span className={
+                    color==='red' ? 'text-red-600' : color==='yellow' ? 'text-yellow-600' : 'text-green-600'
+                  }>
+                    {MF.toFixed(1)}
+                  </span>
+                </td>
+                <td>{needG2.toFixed(1)}</td>
+                <td>{MF < 6 ? needPF.toFixed(1) : '-'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="rounded-2xl shadow-sm p-4 border">
+          <h3 className="font-medium mb-2">Distribuição por Semáforo</h3>
+          <div className="flex items-end gap-4 h-32">
+            {(['red','yellow','green'] as const).map((c) => {
+              const v = counts[c]
+              const h = data.length ? Math.round((v / data.length) * 100) : 0
+              return (
+                <div key={c} className="flex flex-col items-center gap-1">
+                  <div className={`w-10 rounded-t ${c==='red'?'bg-red-500':c==='yellow'?'bg-yellow-500':'bg-green-500'}`} style={{height: `${h}%`}} />
+                  <span className="text-xs text-muted-foreground">{c}</span>
+                  <span className="text-xs">{v}</span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+        <div className="rounded-2xl shadow-sm p-4 border">
+          <h3 className="font-medium mb-2">Médias Finais (MF)</h3>
+          <div className="space-y-1">
+            {data.map(({ s, MF }) => (
+              <div key={s.id} className="flex items-center gap-2">
+                <span className="w-40 truncate text-xs text-muted-foreground">{s.name}</span>
+                <div className="flex-1 bg-muted rounded h-2">
+                  <div className="bg-blue-500 h-2 rounded" style={{ width: `${(MF / maxMF) * 100}%` }} />
+                </div>
+                <span className="w-10 text-right text-xs">{MF.toFixed(1)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

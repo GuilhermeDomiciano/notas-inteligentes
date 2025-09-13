@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { upsertGrade } from '../../actions'
+import { Input } from '@/components/ui/input'
 
 export default async function GradesTab({ params }: { params: { id: string } }) {
   const [students, activities, grades] = await Promise.all([
@@ -8,7 +9,9 @@ export default async function GradesTab({ params }: { params: { id: string } }) 
     prisma.studentActivityGrade.findMany({ where: { student: { classId: params.id } } }),
   ])
 
-  const byKey = new Map(grades.map(g => [`${g.studentId}:${g.activityId}`, g] as const))
+  const byKey = new Map<string, typeof grades[number]>(
+    grades.map((g: typeof grades[number]) => [`${g.studentId}:${g.activityId}`, g])
+  )
 
   async function saveAction(formData: FormData) {
     'use server'
@@ -25,16 +28,16 @@ export default async function GradesTab({ params }: { params: { id: string } }) 
         <thead>
           <tr>
             <th className="text-left py-2 pr-4">Aluno</th>
-            {activities.map(a => (
+            {activities.map((a: typeof activities[number]) => (
               <th key={a.id} className="text-left px-2 whitespace-nowrap">{a.title} <span className="text-xs text-gray-500">({a.bucket} • {a.weight})</span></th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {students.map(s => (
+          {students.map((s: typeof students[number]) => (
             <tr key={s.id} className="border-t">
               <td className="py-2 pr-4 font-medium whitespace-nowrap">{s.name}</td>
-              {activities.map(a => {
+              {activities.map((a: typeof activities[number]) => {
                 const k = `${s.id}:${a.id}`
                 const g = byKey.get(k)
                 const val = g?.points ?? ''
@@ -43,7 +46,7 @@ export default async function GradesTab({ params }: { params: { id: string } }) 
                     <form action={saveAction}>
                       <input type="hidden" name="studentId" value={s.id} />
                       <input type="hidden" name="activityId" value={a.id} />
-                      <input name="points" defaultValue={val as any} placeholder="-" className="w-20 border px-2 py-1 rounded" />
+                      <Input name="points" defaultValue={val as any} placeholder="-" className="w-20" />
                     </form>
                   </td>
                 )
@@ -56,4 +59,3 @@ export default async function GradesTab({ params }: { params: { id: string } }) 
     </div>
   )
 }
-
