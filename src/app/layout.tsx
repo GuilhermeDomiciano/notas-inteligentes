@@ -30,10 +30,10 @@ export default function RootLayout({
     <html lang="pt-BR" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider>
-          <header className="border-b">
+          <header className="border-b bg-gradient-to-r from-primary/5 via-accent/10 to-transparent">
             <div className="mx-auto max-w-7xl px-6 h-14 flex items-center justify-between">
               <Link href="/" className="text-sm font-medium hover:opacity-80">
-                Notas Inteligentes
+                <span className="text-primary">Notas</span> Inteligentes
               </Link>
               <nav className="flex items-center gap-4 text-sm text-muted-foreground">
                 <Link href="/classes" className="hover:underline">Turmas</Link>

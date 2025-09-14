@@ -34,26 +34,35 @@ export default async function GradesTab({ params }: { params: Promise<{ id: stri
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="min-w-40">Aluno</TableHead>
+              <TableHead className="min-w-48 sticky left-0 bg-background z-10">Aluno</TableHead>
               {activities.map((a: typeof activities[number]) => (
-                <TableHead key={a.id} className="whitespace-nowrap">{a.title} <span className="text-xs text-muted-foreground">({a.bucket} • {a.weight})</span></TableHead>
+                <TableHead key={a.id} className="whitespace-nowrap">
+                  <div className="flex items-center gap-2">
+                    <span>{a.title}</span>
+                    <span className={`inline-flex items-center gap-1 text-xs ${a.bucket==='G1'?'text-blue-600':a.bucket==='G2'?'text-emerald-600':'text-purple-600'}`}>
+                      <span className={`h-2 w-2 rounded-full ${a.bucket==='G1'?'bg-blue-500':a.bucket==='G2'?'bg-emerald-500':'bg-purple-500'}`}></span>
+                      {a.bucket} • {a.weight}
+                    </span>
+                  </div>
+                </TableHead>
               ))}
             </TableRow>
           </TableHeader>
           <TableBody>
-            {students.map((s: typeof students[number]) => (
-              <TableRow key={s.id}>
-                <TableCell className="font-medium whitespace-nowrap pr-4">{s.name}</TableCell>
+            {students.map((s: typeof students[number], rowIndex: number) => (
+              <TableRow key={s.id} className={rowIndex % 2 === 1 ? 'bg-muted/30' : ''}>
+                <TableCell className="font-medium whitespace-nowrap pr-4 sticky left-0 bg-background z-10">{s.name}</TableCell>
                 {activities.map((a: typeof activities[number]) => {
                   const k = `${s.id}:${a.id}`
                   const g = byKey.get(k)
                   const val: number | '' = g?.points ?? ''
                   return (
                     <TableCell key={k} className="px-2 py-1">
-                      <form action={saveAction}>
+                      <form action={saveAction} className="flex items-center gap-1">
                         <input type="hidden" name="studentId" value={s.id} />
                         <input type="hidden" name="activityId" value={a.id} />
-                        <Input name="points" defaultValue={val} placeholder="-" className="w-24" />
+                        <Input name="points" defaultValue={val} placeholder="-" className="w-20" />
+                        <span className="text-[10px] text-muted-foreground">/ {a.weight}</span>
                       </form>
                     </TableCell>
                   )
@@ -67,4 +76,3 @@ export default async function GradesTab({ params }: { params: Promise<{ id: stri
     </Card>
   )
 }
-

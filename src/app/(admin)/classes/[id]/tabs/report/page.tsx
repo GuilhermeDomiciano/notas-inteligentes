@@ -3,6 +3,7 @@ import { aggregateBuckets, neededG2ForApproval, neededPFForApproval, semaphoreCo
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { HiddenSelect } from '@/components/ui/hidden-select'
+import { Badge } from '@/components/ui/badge'
 
 export default async function ReportTab({ params, searchParams }: { params: Promise<{ id: string }>, searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
   const { id } = await params
@@ -26,6 +27,14 @@ export default async function ReportTab({ params, searchParams }: { params: Prom
 
   const counts = data.reduce((acc, d) => { acc[d.color as 'red'|'yellow'|'green']++; return acc }, { red: 0, yellow: 0, green: 0 } as Record<'red'|'yellow'|'green', number>)
   const maxMF = Math.max(10, ...data.map(d=>d.MF))
+  // Build PDF export URL preserving filters
+  const qs = new URLSearchParams()
+  qs.set('classId', id)
+  if (bucket) qs.set('bucket', bucket)
+  if (sp.until) qs.set('until', String(sp.until))
+  if (hideUndefined) qs.set('hideUndefined', '1')
+  if (sort) qs.set('sort', sort)
+  const pdfHref = `/api/report/pdf?${qs.toString()}`
 
   return (
     <div className="space-y-6">
@@ -69,8 +78,51 @@ export default async function ReportTab({ params, searchParams }: { params: Prom
               <Button type="submit" className="w-full">Aplicar</Button>
             </div>
           </form>
+          <div className="mt-4 flex justify-end">
+            <Button asChild>
+              <a href={pdfHref} target="_blank" rel="noreferrer">Exportar PDF</a>
+            </Button>
+          </div>
         </CardContent>
       </Card>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm">Vermelho</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-end gap-2">
+              <div className="h-8 w-8 rounded-full bg-red-500" />
+              <div className="text-2xl font-semibold">{counts.red}</div>
+              <div className="text-sm text-muted-foreground">em risco</div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm">Amarelo</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-end gap-2">
+              <div className="h-8 w-8 rounded-full bg-yellow-500" />
+              <div className="text-2xl font-semibold">{counts.yellow}</div>
+              <div className="text-sm text-muted-foreground">atenção</div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm">Verde</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-end gap-2">
+              <div className="h-8 w-8 rounded-full bg-green-500" />
+              <div className="text-2xl font-semibold">{counts.green}</div>
+              <div className="text-sm text-muted-foreground">ok</div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       <Card>
         <CardHeader>
@@ -87,9 +139,15 @@ export default async function ReportTab({ params, searchParams }: { params: Prom
                   <th>MF</th>
                   <th>Necessário G2</th>
                   <th>Necessário PF</th>
+                  <th>Status</th>
                 </tr>
               </thead>
               <tbody>
+                {data.length === 0 && (
+                  <tr>
+                    <td className="py-6 px-2 text-muted-foreground" colSpan={7}>Nenhum dado para exibir com os filtros atuais.</td>
+                  </tr>
+                )}
                 {data.map(({ s, agg, MF, needG2, needPF, color }) => (
                   <tr key={s.id} className="border-t">
                     <td className="py-2 px-2">{s.name}</td>
@@ -104,6 +162,15 @@ export default async function ReportTab({ params, searchParams }: { params: Prom
                     </td>
                     <td>{needG2.toFixed(1)}</td>
                     <td>{MF < 6 ? needPF.toFixed(1) : '-'}</td>
+                    <td>
+                      <Badge className={
+                        color==='red' ? 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300' :
+                        color==='yellow' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-500/20 dark:text-yellow-300' :
+                        'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300'
+                      }>
+                        {color==='red'?'Em risco':color==='yellow'?'Atenção':'OK'}
+                      </Badge>
+                    </td>
                   </tr>
                 ))}
               </tbody>
