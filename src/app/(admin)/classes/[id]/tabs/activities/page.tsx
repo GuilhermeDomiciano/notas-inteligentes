@@ -2,6 +2,10 @@ import { prisma } from '@/lib/prisma'
 import { createActivity, deleteActivity } from '../../actions'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table'
+import { HiddenSelect } from '@/components/ui/hidden-select'
 
 export default async function ActivitiesTab({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -24,62 +28,77 @@ export default async function ActivitiesTab({ params }: { params: Promise<{ id: 
 
   return (
     <div className="space-y-4">
-      <form action={addAction} className="grid grid-cols-5 gap-2 items-end">
-        <div className="flex flex-col col-span-2">
-          <label className="text-sm">Título</label>
-          <Input name="title" />
-        </div>
-        <div className="flex flex-col">
-          <label className="text-sm">Bucket</label>
-          <select name="bucket" className="border px-3 py-2 rounded-md">
-            <option value="G1">G1</option>
-            <option value="G2">G2</option>
-            <option value="FINAL">FINAL</option>
-          </select>
-        </div>
-        <div className="flex flex-col">
-          <label className="text-sm">Peso</label>
-          <Input name="weight" type="number" step="0.1" min={0} />
-        </div>
-        <div className="flex flex-col">
-          <label className="text-sm">Data</label>
-          <Input name="dueAt" type="date" />
-        </div>
-        <div className="col-span-5">
-          <Button type="submit">Adicionar</Button>
-        </div>
-      </form>
+      <Card>
+        <CardHeader>
+          <CardTitle>Adicionar atividade</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form action={addAction} className="grid grid-cols-1 sm:grid-cols-8 gap-3 items-end">
+            <div className="sm:col-span-4 space-y-1">
+              <Label htmlFor="title">Título</Label>
+              <Input id="title" name="title" />
+            </div>
+            <div className="sm:col-span-2 space-y-1">
+              <Label>Bucket</Label>
+              <HiddenSelect
+                name="bucket"
+                defaultValue="G1"
+                options={[
+                  { value: 'G1', label: 'G1' },
+                  { value: 'G2', label: 'G2' },
+                  { value: 'FINAL', label: 'FINAL' },
+                ]}
+              />
+            </div>
+            <div className="sm:col-span-1 space-y-1">
+              <Label htmlFor="weight">Peso</Label>
+              <Input id="weight" name="weight" type="number" step="0.1" min={0} />
+            </div>
+            <div className="sm:col-span-1 space-y-1">
+              <Label htmlFor="dueAt">Data</Label>
+              <Input id="dueAt" name="dueAt" type="date" />
+            </div>
+            <div className="sm:col-span-8">
+              <Button type="submit">Adicionar</Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
 
-      <div className="rounded-2xl shadow-sm p-4 border">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="text-left">
-              <th className="py-2">Título</th>
-              <th>Bucket</th>
-              <th>Peso</th>
-              <th>Data</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {activities.map(a => (
-              <tr key={a.id} className="border-t">
-                <td className="py-2">{a.title}</td>
-                <td>{a.bucket}</td>
-                <td>{a.weight}</td>
-                <td>{new Date(a.dueAt).toLocaleDateString()}</td>
-                <td className="text-right">
-                  <form action={delAction}>
-                    <input type="hidden" name="id" value={a.id} />
-                    <button className="text-red-600 underline">Remover</button>
-                  </form>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Atividades</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Título</TableHead>
+                <TableHead>Bucket</TableHead>
+                <TableHead>Peso</TableHead>
+                <TableHead>Data</TableHead>
+                <TableHead></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {activities.map(a => (
+                <TableRow key={a.id}>
+                  <TableCell className="py-2">{a.title}</TableCell>
+                  <TableCell>{a.bucket}</TableCell>
+                  <TableCell>{a.weight}</TableCell>
+                  <TableCell>{new Date(a.dueAt).toLocaleDateString()}</TableCell>
+                  <TableCell className="text-right">
+                    <form action={delAction}>
+                      <input type="hidden" name="id" value={a.id} />
+                      <Button variant="link" className="text-red-600">Remover</Button>
+                    </form>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   )
 }
-

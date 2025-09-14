@@ -2,6 +2,9 @@ import { prisma } from '@/lib/prisma'
 import { createStudent, softDeleteStudent } from '../../actions'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table'
 
 export default async function StudentsTab({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -22,43 +25,57 @@ export default async function StudentsTab({ params }: { params: Promise<{ id: st
 
   return (
     <div className="space-y-4">
-      <form action={addAction} className="flex gap-2 items-end">
-        <div className="flex flex-col">
-          <label className="text-sm">Nome</label>
-          <Input name="name" />
-        </div>
-        <div className="flex flex-col">
-          <label className="text-sm">Número Acadêmico</label>
-          <Input name="academicNo" />
-        </div>
-        <Button type="submit">Adicionar</Button>
-      </form>
+      <Card>
+        <CardHeader>
+          <CardTitle>Adicionar aluno</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form action={addAction} className="grid grid-cols-1 sm:grid-cols-6 gap-3 items-end">
+            <div className="sm:col-span-4 space-y-1">
+              <Label htmlFor="name">Nome</Label>
+              <Input id="name" name="name" />
+            </div>
+            <div className="sm:col-span-2 space-y-1">
+              <Label htmlFor="academicNo">Número Acadêmico</Label>
+              <Input id="academicNo" name="academicNo" />
+            </div>
+            <div className="sm:col-span-6">
+              <Button type="submit">Adicionar</Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
 
-      <div className="rounded-2xl shadow-sm p-4 border">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="text-left">
-              <th className="py-2">Nome</th>
-              <th>Número Acadêmico</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {students.map(s => (
-              <tr key={s.id} className="border-t">
-                <td className="py-2">{s.name}</td>
-                <td>{s.academicNo}</td>
-                <td className="text-right">
-                  <form action={delAction}>
-                    <input type="hidden" name="id" value={s.id} />
-                    <button className="text-red-600 underline">Remover</button>
-                  </form>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Alunos</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nome</TableHead>
+                <TableHead>Número Acadêmico</TableHead>
+                <TableHead></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {students.map(s => (
+                <TableRow key={s.id}>
+                  <TableCell className="py-2">{s.name}</TableCell>
+                  <TableCell>{s.academicNo}</TableCell>
+                  <TableCell className="text-right">
+                    <form action={delAction}>
+                      <input type="hidden" name="id" value={s.id} />
+                      <Button variant="link" className="text-red-600">Remover</Button>
+                    </form>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   )
 }

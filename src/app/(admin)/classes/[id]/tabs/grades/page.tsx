@@ -1,6 +1,8 @@
 import { prisma } from '@/lib/prisma'
 import { upsertGrade } from '../../actions'
 import { Input } from '@/components/ui/input'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table'
 
 export default async function GradesTab({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -24,39 +26,45 @@ export default async function GradesTab({ params }: { params: Promise<{ id: stri
   }
 
   return (
-    <div className="overflow-auto">
-      <table className="min-w-full text-sm">
-        <thead>
-          <tr>
-            <th className="text-left py-2 pr-4">Aluno</th>
-            {activities.map((a: typeof activities[number]) => (
-              <th key={a.id} className="text-left px-2 whitespace-nowrap">{a.title} <span className="text-xs text-gray-500">({a.bucket} • {a.weight})</span></th>
+    <Card>
+      <CardHeader>
+        <CardTitle>Lançamentos</CardTitle>
+      </CardHeader>
+      <CardContent className="overflow-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="min-w-40">Aluno</TableHead>
+              {activities.map((a: typeof activities[number]) => (
+                <TableHead key={a.id} className="whitespace-nowrap">{a.title} <span className="text-xs text-muted-foreground">({a.bucket} • {a.weight})</span></TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {students.map((s: typeof students[number]) => (
+              <TableRow key={s.id}>
+                <TableCell className="font-medium whitespace-nowrap pr-4">{s.name}</TableCell>
+                {activities.map((a: typeof activities[number]) => {
+                  const k = `${s.id}:${a.id}`
+                  const g = byKey.get(k)
+                  const val: number | '' = g?.points ?? ''
+                  return (
+                    <TableCell key={k} className="px-2 py-1">
+                      <form action={saveAction}>
+                        <input type="hidden" name="studentId" value={s.id} />
+                        <input type="hidden" name="activityId" value={a.id} />
+                        <Input name="points" defaultValue={val} placeholder="-" className="w-24" />
+                      </form>
+                    </TableCell>
+                  )
+                })}
+              </TableRow>
             ))}
-          </tr>
-        </thead>
-        <tbody>
-          {students.map((s: typeof students[number]) => (
-            <tr key={s.id} className="border-t">
-              <td className="py-2 pr-4 font-medium whitespace-nowrap">{s.name}</td>
-              {activities.map((a: typeof activities[number]) => {
-                const k = `${s.id}:${a.id}`
-                const g = byKey.get(k)
-                const val: number | '' = g?.points ?? ''
-                return (
-                  <td key={k} className="px-2 py-1">
-                    <form action={saveAction}>
-                      <input type="hidden" name="studentId" value={s.id} />
-                      <input type="hidden" name="activityId" value={a.id} />
-                      <Input name="points" defaultValue={val} placeholder="-" className="w-20" />
-                    </form>
-                  </td>
-                )
-              })}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <p className="text-xs text-gray-500 mt-2">Dica: altere um valor e pressione Enter para salvar.</p>
-    </div>
+          </TableBody>
+        </Table>
+        <p className="text-xs text-muted-foreground mt-2">Dica: altere um valor e pressione Enter para salvar.</p>
+      </CardContent>
+    </Card>
   )
 }
+

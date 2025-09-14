@@ -1,5 +1,8 @@
 import { prisma } from '@/lib/prisma'
 import { aggregateBuckets, neededG2ForApproval, neededPFForApproval, semaphoreColor } from '@/lib/grades'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { HiddenSelect } from '@/components/ui/hidden-select'
 
 export default async function ReportTab({ params, searchParams }: { params: Promise<{ id: string }>, searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
   const { id } = await params
@@ -26,99 +29,130 @@ export default async function ReportTab({ params, searchParams }: { params: Prom
 
   return (
     <div className="space-y-6">
-      <form className="flex gap-4 items-end">
-        <div className="flex flex-col">
-          <label className="text-sm">Bucket</label>
-          <select name="bucket" defaultValue={bucket} className="border px-3 py-2 rounded-md">
-            <option value="ALL">Todos</option>
-            <option value="G1">G1</option>
-            <option value="G2">G2</option>
-          </select>
-        </div>
-        <div className="flex flex-col">
-          <label className="text-sm">Até data</label>
-          <input name="until" type="date" defaultValue={(sp.until as string | undefined) ?? ''} className="border px-3 py-2 rounded-md" />
-        </div>
-        <div className="flex items-center gap-2">
-          <input id="hideUndefined" type="checkbox" name="hideUndefined" value="1" defaultChecked={hideUndefined} />
-          <label htmlFor="hideUndefined" className="text-sm">Ocultar não definidas</label>
-        </div>
-        <div className="flex flex-col">
-          <label className="text-sm">Ordenar por média</label>
-          <select name="sort" defaultValue={sort} className="border px-3 py-2 rounded-md">
-            <option value="desc">Maior → menor</option>
-            <option value="asc">Menor → maior</option>
-          </select>
-        </div>
-        <button className="px-4 py-2 rounded-md bg-black text-white">Aplicar</button>
-      </form>
+      <Card>
+        <CardHeader>
+          <CardTitle>Relatório</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+            <div className="sm:col-span-2">
+              <HiddenSelect
+                name="bucket"
+                defaultValue={bucket}
+                options={[
+                  { value: 'ALL', label: 'Todos' },
+                  { value: 'G1', label: 'G1' },
+                  { value: 'G2', label: 'G2' },
+                ]}
+                placeholder="Bucket"
+              />
+            </div>
+            <div className="sm:col-span-3">
+              <input name="until" type="date" defaultValue={(sp.until as string | undefined) ?? ''} className="border px-3 py-2 rounded-md w-full" />
+            </div>
+            <div className="sm:col-span-3 flex items-center gap-2">
+              <input id="hideUndefined" type="checkbox" name="hideUndefined" value="1" defaultChecked={hideUndefined} />
+              <label htmlFor="hideUndefined" className="text-sm">Ocultar não definidas</label>
+            </div>
+            <div className="sm:col-span-2">
+              <HiddenSelect
+                name="sort"
+                defaultValue={sort}
+                options={[
+                  { value: 'desc', label: 'Maior → menor' },
+                  { value: 'asc', label: 'Menor → maior' },
+                ]}
+                placeholder="Ordenação"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <Button type="submit" className="w-full">Aplicar</Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
 
-      <div className="rounded-2xl shadow-sm p-4 border">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="text-left">
-              <th className="py-2">Aluno</th>
-              <th>G1</th>
-              <th>G2</th>
-              <th>MF</th>
-              <th>Necessário G2</th>
-              <th>Necessário PF</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.map(({ s, agg, MF, needG2, needPF, color }) => (
-              <tr key={s.id} className="border-t">
-                <td className="py-2">{s.name}</td>
-                <td>{agg.G1.toFixed(1)}</td>
-                <td>{agg.G2.toFixed(1)}</td>
-                <td>
-                  <span className={
-                    color==='red' ? 'text-red-600' : color==='yellow' ? 'text-yellow-600' : 'text-green-600'
-                  }>
-                    {MF.toFixed(1)}
-                  </span>
-                </td>
-                <td>{needG2.toFixed(1)}</td>
-                <td>{MF < 6 ? needPF.toFixed(1) : '-'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Alunos e Médias</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="rounded-2xl p-0 border">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left">
+                  <th className="py-2 px-2">Aluno</th>
+                  <th>G1</th>
+                  <th>G2</th>
+                  <th>MF</th>
+                  <th>Necessário G2</th>
+                  <th>Necessário PF</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.map(({ s, agg, MF, needG2, needPF, color }) => (
+                  <tr key={s.id} className="border-t">
+                    <td className="py-2 px-2">{s.name}</td>
+                    <td>{agg.G1.toFixed(1)}</td>
+                    <td>{agg.G2.toFixed(1)}</td>
+                    <td>
+                      <span className={
+                        color==='red' ? 'text-red-600' : color==='yellow' ? 'text-yellow-600' : 'text-green-600'
+                      }>
+                        {MF.toFixed(1)}
+                      </span>
+                    </td>
+                    <td>{needG2.toFixed(1)}</td>
+                    <td>{MF < 6 ? needPF.toFixed(1) : '-'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="rounded-2xl shadow-sm p-4 border">
-          <h3 className="font-medium mb-2">Distribuição por Semáforo</h3>
-          <div className="flex items-end gap-4 h-32">
-            {(['red','yellow','green'] as const).map((c) => {
-              const v = counts[c]
-              const h = data.length ? Math.round((v / data.length) * 100) : 0
-              return (
-                <div key={c} className="flex flex-col items-center gap-1">
-                  <div className={`w-10 rounded-t ${c==='red'?'bg-red-500':c==='yellow'?'bg-yellow-500':'bg-green-500'}`} style={{height: `${h}%`}} />
-                  <span className="text-xs text-muted-foreground">{c}</span>
-                  <span className="text-xs">{v}</span>
+        <Card>
+          <CardHeader>
+            <CardTitle>Distribuição por Semáforo</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-end gap-4 h-32">
+              {(['red','yellow','green'] as const).map((c) => {
+                const v = counts[c]
+                const h = data.length ? Math.round((v / data.length) * 100) : 0
+                return (
+                  <div key={c} className="flex flex-col items-center gap-1">
+                    <div className={`w-10 rounded-t ${c==='red'?'bg-red-500':c==='yellow'?'bg-yellow-500':'bg-green-500'}`} style={{height: `${h}%`}} />
+                    <span className="text-xs text-muted-foreground">{c}</span>
+                    <span className="text-xs">{v}</span>
+                  </div>
+                )
+              })}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Médias Finais (MF)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-1">
+              {data.map(({ s, MF }) => (
+                <div key={s.id} className="flex items-center gap-2">
+                  <span className="w-40 truncate text-xs text-muted-foreground">{s.name}</span>
+                  <div className="flex-1 bg-muted rounded h-2">
+                    <div className="bg-blue-500 h-2 rounded" style={{ width: `${(MF / maxMF) * 100}%` }} />
+                  </div>
+                  <span className="w-10 text-right text-xs">{MF.toFixed(1)}</span>
                 </div>
-              )
-            })}
-          </div>
-        </div>
-        <div className="rounded-2xl shadow-sm p-4 border">
-          <h3 className="font-medium mb-2">Médias Finais (MF)</h3>
-          <div className="space-y-1">
-            {data.map(({ s, MF }) => (
-              <div key={s.id} className="flex items-center gap-2">
-                <span className="w-40 truncate text-xs text-muted-foreground">{s.name}</span>
-                <div className="flex-1 bg-muted rounded h-2">
-                  <div className="bg-blue-500 h-2 rounded" style={{ width: `${(MF / maxMF) * 100}%` }} />
-                </div>
-                <span className="w-10 text-right text-xs">{MF.toFixed(1)}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )
 }
-
