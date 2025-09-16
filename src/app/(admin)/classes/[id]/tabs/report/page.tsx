@@ -207,21 +207,6 @@ export default async function ReportTab({ params, searchParams }: { params: Prom
 
       <Card>
         <CardHeader>
-          <CardTitle>Heatmap (Aluno × Atividade)</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Heatmap
-            activities={activities
-              .filter(a => !until || new Date(a.dueAt) <= until)
-              .map(a => ({ id: a.id, title: a.title, bucket: a.bucket as 'G1'|'G2'|'FINAL', weight: a.weight }))}
-            students={data.map(d => ({ id: d.s.id, name: d.s.name, grades: d.s.grades.map(g => ({ activityId: g.activityId, points: g.points as number | null })) }))}
-            defaultTreatUndefinedAsZero={false}
-          />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
           <CardTitle>Narrativa</CardTitle>
         </CardHeader>
         <CardContent>
@@ -399,6 +384,20 @@ export default async function ReportTab({ params, searchParams }: { params: Prom
             <WhatIfSimulator items={data.map(d => ({ id: d.s.id, name: d.s.name, G1: d.agg.G1, G2: d.agg.G2, MF: d.MF }))} />
           </CardContent>
         </Card>
+        <Card>
+        <CardHeader>
+          <CardTitle>Heatmap (Aluno × Atividade)</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Heatmap
+            activities={activities
+              .filter(a => !until || new Date(a.dueAt) <= until)
+              .map(a => ({ id: a.id, title: a.title, bucket: a.bucket as 'G1'|'G2'|'FINAL', weight: a.weight }))}
+            students={data.map(d => ({ id: d.s.id, name: d.s.name, grades: d.s.grades.map(g => ({ activityId: g.activityId, points: g.points as number | null })) }))}
+            defaultTreatUndefinedAsZero={false}
+          />
+        </CardContent>
+      </Card>
       </div>
     </div>
   )
