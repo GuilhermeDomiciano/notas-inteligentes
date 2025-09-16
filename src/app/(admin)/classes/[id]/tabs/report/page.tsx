@@ -166,6 +166,61 @@ export default async function ReportTab({ params, searchParams }: { params: Prom
         </CardContent>
       </Card>
 
+      <Card>
+        <CardHeader>
+          <CardTitle>Alunos e Médias</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="rounded-2xl p-0 border">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left">
+                  <th className="py-2 px-2">Aluno</th>
+                  <th>G1</th>
+                  <th>G2</th>
+                  <th>MF</th>
+                  <th>Necessário G2</th>
+                  <th>Necessário PF</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.length === 0 && (
+                  <tr>
+                    <td className="py-6 px-2 text-muted-foreground" colSpan={7}>Nenhum dado para exibir com os filtros atuais.</td>
+                  </tr>
+                )}
+                {data.map(({ s, agg, MF, needG2, needPF, color }) => (
+                  <tr key={s.id} className="border-t">
+                    <td className="py-2 px-2">{s.name}</td>
+                    <td>{agg.G1.toFixed(1)}</td>
+                    <td>{agg.G2.toFixed(1)}</td>
+                    <td>
+                      <span className={
+                        color==='red' ? 'text-red-600' : color==='yellow' ? 'text-yellow-600' : 'text-green-600'
+                      }>
+                        {MF.toFixed(1)}
+                      </span>
+                    </td>
+                    <td>{needG2.toFixed(1)}</td>
+                    <td>{MF < 6 ? needPF.toFixed(1) : '-'}</td>
+                    <td>
+                      <Badge className={
+                        color==='red' ? 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300' :
+                        color==='yellow' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-500/20 dark:text-yellow-300' :
+                        'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300'
+                      }>
+                        {color==='red'?'Em risco':color==='yellow'?'Atenção':'OK'}
+                      </Badge>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card>
           <CardHeader>
@@ -229,61 +284,6 @@ export default async function ReportTab({ params, searchParams }: { params: Prom
                 <span className="w-12 text-right text-xs">{b.pct}%</span>
               </div>
             ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Alunos e Médias</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="rounded-2xl p-0 border">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left">
-                  <th className="py-2 px-2">Aluno</th>
-                  <th>G1</th>
-                  <th>G2</th>
-                  <th>MF</th>
-                  <th>Necessário G2</th>
-                  <th>Necessário PF</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.length === 0 && (
-                  <tr>
-                    <td className="py-6 px-2 text-muted-foreground" colSpan={7}>Nenhum dado para exibir com os filtros atuais.</td>
-                  </tr>
-                )}
-                {data.map(({ s, agg, MF, needG2, needPF, color }) => (
-                  <tr key={s.id} className="border-t">
-                    <td className="py-2 px-2">{s.name}</td>
-                    <td>{agg.G1.toFixed(1)}</td>
-                    <td>{agg.G2.toFixed(1)}</td>
-                    <td>
-                      <span className={
-                        color==='red' ? 'text-red-600' : color==='yellow' ? 'text-yellow-600' : 'text-green-600'
-                      }>
-                        {MF.toFixed(1)}
-                      </span>
-                    </td>
-                    <td>{needG2.toFixed(1)}</td>
-                    <td>{MF < 6 ? needPF.toFixed(1) : '-'}</td>
-                    <td>
-                      <Badge className={
-                        color==='red' ? 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300' :
-                        color==='yellow' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-500/20 dark:text-yellow-300' :
-                        'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300'
-                      }>
-                        {color==='red'?'Em risco':color==='yellow'?'Atenção':'OK'}
-                      </Badge>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
           </div>
         </CardContent>
       </Card>
