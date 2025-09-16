@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { createActivity, deleteActivity } from '../../actions'
+import { Fragment } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
@@ -90,7 +91,7 @@ export default async function ActivitiesTab({ params }: { params: Promise<{ id: 
             </TableHeader>
             <TableBody>
               {(['G1','G2','FINAL'] as const).map(bucket => (
-                <>
+                <Fragment key={bucket}>
                   {activities.filter(a=>a.bucket===bucket).length > 0 && (
                     <TableRow key={`${bucket}-header`}>
                       <TableCell colSpan={5} className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
@@ -117,7 +118,7 @@ export default async function ActivitiesTab({ params }: { params: Promise<{ id: 
                       </TableCell>
                     </TableRow>
                   ))}
-                </>
+                </Fragment>
               ))}
             </TableBody>
           </Table>
@@ -126,4 +127,3 @@ export default async function ActivitiesTab({ params }: { params: Promise<{ id: 
     </div>
   )
 }
-
